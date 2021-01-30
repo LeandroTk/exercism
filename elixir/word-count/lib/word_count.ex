@@ -1,16 +1,13 @@
 defmodule WordCount do
-  @ascii_punctuation ~r/!|"|\#|\$|%|&|'|\(|\)|\*|\+|,|\.|\/|:|;|<|=|>|\?|@|\[|\\|]|\^|_|`|\{|\||}|~/
-
   def count(sentence) do
     sentence
-    |> remove_special_chars
     |> String.downcase
-    |> String.split
+    |> split_by_special_chars
     |> build_counter
   end
 
-  defp remove_special_chars(string) do    
-    String.replace(string, @ascii_punctuation, " ")
+  defp split_by_special_chars(string) do
+    String.split(string, ~r/[^[:alnum:]-]/u, trim: true)    
   end
 
   defp build_counter(strings) do
@@ -18,14 +15,14 @@ defmodule WordCount do
   end
 
   defp update_counter(string, counter) do
-    Map.put(counter, string, new_counter(counter[string]))
+    Map.update(
+      counter,
+      string, 1,
+      &increment_counter/1
+    )
   end
 
-  defp new_counter(string_counter) do
-    if string_counter do
-      string_counter + 1
-    else
-      1
-    end
+  defp increment_counter(string_counter) do
+    string_counter + 1
   end
 end
